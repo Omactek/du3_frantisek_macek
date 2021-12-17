@@ -57,5 +57,4 @@ for i in range(len(adr)):
         if temp_dist < adresa_vzdalenost[i][0]:
             adresa_vzdalenost[i][0] = temp_dist
 
-print(adr)
-print(kont_volne)
+print(adresa_vzdalenost)
