@@ -1,16 +1,17 @@
 import json
 import os
 from pyproj import Transformer
+from math import sqrt
 
-kont = [] #[[x,y,stationname,pristup]]
-kont_volne = []
+kont = [] #[[y,x,stationname,pristup]]
+kont_volne = [] #[[y,x,stationname]]
 adr = [] #[[x,y,housenumber,street]]
 kontejnery_path = "kontejnery.geojson"
 adresy_path = "adresy.geojson"
-adresa_vzdalenost = []
+adresa_vzdalenost = [] #[[vzdalenost, housenumber, street]]
 
 
-def load_file(file_path, file, file_name): #načte vstupní soubor a ověří, jestli existuje, nebo je prázdný
+def load_file(file_path, file): #načte vstupní soubor a ověří, jestli existuje, nebo je prázdný
     try:
         if os.path.getsize(file_path) == 0:
             print(f"Vstupní soubor {file} je prázdný.")
@@ -23,7 +24,7 @@ def load_file(file_path, file, file_name): #načte vstupní soubor a ověří, j
         return data
 
 #načtení vstupního souboru kontejnerů
-kontejnery = load_file(kontejnery_path, "kontejnery", "kinfile") #načte vstupní soubor a ověří, jestli existuje, nebo je prázdný
+kontejnery = load_file(kontejnery_path, "kontejnery") #načte vstupní soubor a ověří, jestli existuje, nebo je prázdný
 
 for feature in kontejnery["features"]: #načte do listu jen relevatní položky
     kont.append([feature["geometry"]["coordinates"][0],feature["geometry"]["coordinates"][1],feature["properties"]["STATIONNAME"],feature["properties"]["PRISTUP"]])
@@ -33,15 +34,16 @@ for i in range(len(kont)): #zvolí jen volně dostupné kontejnery
         kont_volne.append(kont[i][0:3])
 
 #načtení vstupního souboru adres
-adresy = load_file(adresy_path, "adresy", "adinfile")
+adresy = load_file(adresy_path, "adresy")
 
 for feature in adresy["features"]: #načte do listu jen relevatní položky
     adr.append([feature["geometry"]["coordinates"][0],feature["geometry"]["coordinates"][1],feature["properties"]["addr:housenumber"],feature["properties"]["addr:street"]])
 
+print(adr[0])
 #převedení souřadnic do s-jtsk
 wgs84_sjtsk = Transformer.from_crs("epsg:4326","epsg:5514")
 for i in range(len(adr)):
-    adr[i][0] = wgs84_sjtsk.transform(adr[i][0],adr[i][1])
+    adr[i][0] = wgs84_sjtsk.transform(adr[i][1],adr[i][0])
     adr[i][1] = adr[i][0][1]
     adr[i][0] = adr[i][0][0]
 
