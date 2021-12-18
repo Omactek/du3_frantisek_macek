@@ -11,6 +11,8 @@ kontejnery_path = "kontejnery.geojson"
 adresy_path = "adresy.geojson"
 adresa_vzdalenost = [] #[[vzdalenost, housenumber, street]]
 avg_dist = 0 #prumerna vzdalenost
+med_dist = 0 #median vzdalenosti
+max_dist = [0] #[vzdálenost, housenumber, street]
 
 
 def load_file(file_path, file): #načte vstupní soubor a ověří, jestli existuje, nebo je prázdný
@@ -68,10 +70,19 @@ for i in range(len(adr)):
         if temp_dist < adresa_vzdalenost[i][0]:
             adresa_vzdalenost[i][0] = temp_dist
 
-#vypočítání průměru
+#vypočet průměru
 avg_dist = int(round(average(adresa_vzdalenost,0)))
-print(avg_dist)
 
-#vypočítání mediánu
+#vypočet mediánu
 med_dist = int(round(med_lol(adresa_vzdalenost,0)))
-print(med_dist)
+
+#zjištění maximální vzdálenosti
+for i in range(len(adresa_vzdalenost)):
+    if max_dist[0] < adresa_vzdalenost[i][0]:
+        max_dist = adresa_vzdalenost[i]
+max_dist[0] = int(round(max_dist[0],0))
+
+#výpis informací
+print(f"Načteno {len(adr)} adresních bodů.\nNačteno {len(kont)} kontejnerů na tříděný odpad.\n")
+print(f"Průměrná vzdálenost ke kontejneru je {avg_dist} m.\nMediánová vzdálenost ke kontejneru je {med_dist} m.\n")
+print(f"Nejdále ke kontejneru je z adresy {max_dist[2]} {max_dist[1]} a to {max_dist[0]} m.")
