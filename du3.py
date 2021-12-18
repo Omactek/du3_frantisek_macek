@@ -23,9 +23,13 @@ def load_file(file_path, file): #načte vstupní soubor a ověří, jestli exist
     except FileNotFoundError:
         print(f"Chybí vstupní soubor {file}.")
         quit()
-    with open(file_path, encoding="utf8") as file_name:
-        data = json.load(file_name)
-        return data
+    try:    
+        with open(file_path, encoding="utf8") as file_name:
+            data = json.load(file_name)
+            return data
+    except ValueError:
+        print(f"Vadný formát souboru {file}")
+        quit()
 
 def euclidean_distance(coord_1_x,coord_1_y,coord_2_x, coord_2_y): #funkce na vypočítání vzdálenosti
     distance = pow(pow(coord_1_x - coord_2_x, 2) + pow(coord_1_y - coord_2_y, 2),0.5)
@@ -38,6 +42,12 @@ def average(list, position): #funkce na vypočítání průměru z listu listů
 def med_lol(list, position): #funkce na vypočítání mediánu z listu listů
     med = median(x[position] for x in list)
     return med
+
+#funkce kontroluje, jestli není minimální vzdálenost moc velká
+def check_distance(list,value):
+    if all(num < value for num in (x[0] for x in list)) == False:
+        print(f"Minimální vzdálenost jednoho z adresních bodů je více než {value} m.")
+
 
 #načtení vstupního souboru kontejnerů
 kontejnery = load_file(kontejnery_path, "kontejnery") #načte vstupní soubor a ověří, jestli existuje, nebo je prázdný
@@ -69,6 +79,7 @@ for i in range(len(adr)):
         temp_dist = euclidean_distance(adr[i][0],adr[i][1],kont_volne[z][0],kont_volne[z][1])
         if temp_dist < adresa_vzdalenost[i][0]:
             adresa_vzdalenost[i][0] = temp_dist
+any()
 
 #vypočet průměru
 avg_dist = int(round(average(adresa_vzdalenost,0)))
