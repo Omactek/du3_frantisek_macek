@@ -2,6 +2,7 @@ import json
 import os
 from pyproj import Transformer
 from math import sqrt
+from statistics import median
 
 kont = [] #[[x,y,stationname,pristup]]
 kont_volne = [] #[[x,y,stationname]]
@@ -9,6 +10,7 @@ adr = [] #[[x,y,housenumber,street]]
 kontejnery_path = "kontejnery.geojson"
 adresy_path = "adresy.geojson"
 adresa_vzdalenost = [] #[[vzdalenost, housenumber, street]]
+avg_dist = 0 #prumerna vzdalenost
 
 
 def load_file(file_path, file): #načte vstupní soubor a ověří, jestli existuje, nebo je prázdný
@@ -27,9 +29,13 @@ def euclidean_distance(coord_1_x,coord_1_y,coord_2_x, coord_2_y): #funkce na vyp
     distance = pow(pow(coord_1_x - coord_2_x, 2) + pow(coord_1_y - coord_2_y, 2),0.5)
     return distance
 
-def average(list, position): #funkce na vypočítání průměru
-    avg = sum([x[position] for x in list]) / len(list)
+def average(list, position): #funkce na vypočítání průměru z listu listů
+    avg = sum(x[position] for x in list) / len(list)
     return avg
+
+def med_lol(list, position): #funkce na vypočítání mediánu z listu listů
+    med = median(x[position] for x in list)
+    return med
 
 #načtení vstupního souboru kontejnerů
 kontejnery = load_file(kontejnery_path, "kontejnery") #načte vstupní soubor a ověří, jestli existuje, nebo je prázdný
@@ -47,7 +53,6 @@ adresy = load_file(adresy_path, "adresy")
 for feature in adresy["features"]: #načte do listu jen relevatní položky
     adr.append([feature["geometry"]["coordinates"][0],feature["geometry"]["coordinates"][1],feature["properties"]["addr:housenumber"],feature["properties"]["addr:street"]])
 
-print(adr[0])
 #převedení souřadnic do s-jtsk
 wgs84_sjtsk = Transformer.from_crs("epsg:4326","epsg:5514")
 for i in range(len(adr)):
@@ -64,5 +69,9 @@ for i in range(len(adr)):
             adresa_vzdalenost[i][0] = temp_dist
 
 #vypočítání průměru
-avg_dist = average(adresa_vzdalenost,0)
+avg_dist = int(round(average(adresa_vzdalenost,0)))
 print(avg_dist)
+
+#vypočítání mediánu
+med_dist = int(round(med_lol(adresa_vzdalenost,0)))
+print(med_dist)
